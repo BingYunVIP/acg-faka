@@ -37,7 +37,6 @@ class Plugin
 
         $infoPath = $path . '/Config/Info.php';
         $submitPath = $path . '/Config/Submit.php';
-        $submitJsPath = $path . '/Config/Submit.js';
         $configPath = $path . '/Config/Config.php';
         if (!file_exists($infoPath)) {
             return null;
@@ -51,9 +50,9 @@ class Plugin
         $submit = file_exists($submitPath) ? require($submitPath) : [];
         $config = file_exists($configPath) ? require($configPath) : [];
 
-        if (file_exists($submitJsPath)) {
-            $submit = file_get_contents($submitJsPath);
-        }
+        // CSP-safe mode: do not execute JS submit schemas from Submit.js.
+        // Keep submit definition in Submit.php (array) so admin pages can render
+        // forms without relying on eval/new Function.
 
         //submit
         if (is_array($submit)) {

@@ -19,6 +19,33 @@ error_reporting(0);
 const BASE_PATH = __DIR__ . "/../";
 require(BASE_PATH . '/vendor/autoload.php');
 require("Helper.php");
+
+/**
+ * Emit CSP header. Allow unsafe-eval only for admin pay plugin page
+ * to keep the change minimal and reduce security impact scope.
+ */
+function sendCspHeader(string $routePath): void
+{
+    $route = "/" . trim($routePath, "/");
+    $isPayPluginPage = preg_match('#^/admin/pay/plugin(?:/.*)?$#i', $route) === 1;
+    $scriptSrc = $isPayPluginPage
+        ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+        : "script-src 'self' 'unsafe-inline'";
+
+    $csp = implode("; ", [
+        "default-src 'self'",
+        $scriptSrc,
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' data:",
+        "connect-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "frame-ancestors 'self'"
+    ]);
+
+    header("Content-Security-Policy: {$csp}");
+}
 //define
 define("BASE_APP_SERVER", match ((int)config("store")['server']) {
     0 => App\Service\App::MAIN_SERVER,
@@ -48,6 +75,7 @@ try {
 
     //waf install -> 2025-07-26
     $routePath = $_GET['s'] = $_GET['s'] ?? "/user/index/index";
+    sendCspHeader((string)$routePath);
     Context::set(\Kernel\Context\Interface\Request::class, new Request());
     if (trim($routePath, "/") == 'admin') {
         header('location:' . "/admin/authentication/login");

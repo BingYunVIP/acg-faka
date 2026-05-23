@@ -1,5 +1,83 @@
 !function () {
     const $SwitchCategory = $(`.switch-category`), $ItemList = $(`.item-list`), categoryId = getVar("CAT_ID");
+    const $noticePanel = $('#homepage-notice-panel');
+    const $noticeToggle = $('#homepage-notice-toggle');
+    const $noticeBody = $('#homepage-notice-body');
+    const $noticeToggleIcon = $('#homepage-notice-toggle-icon');
+    let noticeModalIndex = null;
+
+    function setNoticePanelState(open) {
+        if (open) {
+            $noticeBody.stop(true, true).slideDown(150);
+            $noticeToggle.attr('aria-expanded', 'true');
+            $noticeToggleIcon.removeClass('fa-angle-down').addClass('fa-angle-up');
+        } else {
+            $noticeBody.stop(true, true).slideUp(150);
+            $noticeToggle.attr('aria-expanded', 'false');
+            $noticeToggleIcon.removeClass('fa-angle-up').addClass('fa-angle-down');
+        }
+    }
+
+    function bindNoticeToggle() {
+        if (!$noticeToggle.length || !$noticeBody.length) return;
+        $noticeToggle.on('click', function () {
+            const isOpen = $noticeBody.is(':visible');
+            setNoticePanelState(!isOpen);
+        });
+        $noticeToggle.on('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                const isOpen = $noticeBody.is(':visible');
+                setNoticePanelState(!isOpen);
+            }
+        });
+    }
+
+    function openMandatoryNoticeModal() {
+        if (!$noticeBody.length || !$noticeBody.html().trim()) return;
+
+        const noticeHtml = $noticeBody.html();
+        const panelWidth = Math.ceil($noticePanel.outerWidth() || 760);
+        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+        const modalWidth = Math.max(320, Math.min(panelWidth, Math.floor(vw * 0.9), 920));
+        const contentMaxHeight = Math.max(220, Math.floor(vh * 0.58));
+        const isMobile = !util.isPc();
+        const content = `
+          <div class="acg-notice-modal-wrap">
+            <div class="acg-notice-modal-content" style="max-height:${contentMaxHeight}px;overflow:auto;">${noticeHtml}</div>
+            <div style="text-align:center;margin-top:14px;">
+              <button type="button" class="btn btn-primary" id="acg-notice-confirm-btn" style="min-width:220px;">
+                已阅读，确认下单
+              </button>
+            </div>
+          </div>
+        `;
+
+        noticeModalIndex = layer.open({
+            type: 1,
+            title: '<i class="fa-duotone fa-regular fa-bullhorn"></i> 公告',
+            shade: 0.55,
+            shadeClose: false,
+            closeBtn: 0,
+            btn: [],
+            area: isMobile ? [Math.min(96, Math.floor((modalWidth / vw) * 100)) + '%', 'auto'] : [modalWidth + 'px', 'auto'],
+            maxWidth: 960,
+            content: content,
+            success: function () {
+                $('#acg-notice-confirm-btn').off('click').on('click', function () {
+                    if (noticeModalIndex !== null) {
+                        layer.close(noticeModalIndex);
+                        noticeModalIndex = null;
+                    }
+                    setNoticePanelState(false);
+                });
+            },
+            end: function () {
+                noticeModalIndex = null;
+            }
+        });
+    }
 
 
     function _PushCommodityList(data) {
@@ -67,6 +145,9 @@
 
     //初次加载
     _SwitchCategory(categoryId > 0 ? categoryId : $SwitchCategory.first().data("id"));
+    bindNoticeToggle();
+    setNoticePanelState(true);
+    openMandatoryNoticeModal();
 
 
     $SwitchCategory.click(function () {

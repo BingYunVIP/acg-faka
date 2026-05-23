@@ -1,12 +1,13 @@
 #{include file="./Header.html"}
 <main class="container py-4">
   <!-- 公告面板 -->
-  <div class="panel">
-    <div class="panel-header">
+  <div class="panel" id="homepage-notice-panel">
+    <div class="panel-header" id="homepage-notice-toggle" role="button" aria-expanded="true" tabindex="0">
       <span class="icon"><i class="fa-duotone fa-regular fa-bullhorn"></i></span>
       <h6 class="panel-title">公告</h6>
+      <span class="ms-auto"><i class="fa-duotone fa-regular fa-angle-up" id="homepage-notice-toggle-icon"></i></span>
     </div>
-    <div class="panel-body">
+    <div class="panel-body" id="homepage-notice-body">
         #{$config.notice}
     </div>
   </div>

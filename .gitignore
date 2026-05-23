@@ -1,0 +1,20 @@
+# Environment / secrets
+.env
+config/database.php
+config/store.php
+config/terms
+
+# Runtime / logs / cache
+runtime/
+runtime.log
+assets/cache/
+
+# Install lock / local state
+kernel/Install/Lock
+
+# Vendor runtime pollution
+vendor/**/DefinitionCache/
+
+# Local branding assets (only commit if intentionally changed)
+assets/admin/images/login/bg.png
+assets/admin/images/login/bg1.png
