@@ -18,3 +18,13 @@ vendor/**/DefinitionCache/
 # Local branding assets (only commit if intentionally changed)
 assets/admin/images/login/bg.png
 assets/admin/images/login/bg1.png
+
+# Epay plugin local/state files
+app/Pay/**/.DS_Store
+app/Pay/**/runtime.log
+app/Pay/**/Config/Config.php
+
+# Local-only tracked overrides (keep out of future commits)
+config/database.php
+favicon.ico
+vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/README
